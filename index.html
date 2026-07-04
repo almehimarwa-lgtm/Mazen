@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>القرآن الكريم</title>
+<meta name="description" content="تصفح سور القرآن الكريم كاملة مع التفسير الميسّر">
+<meta name="theme-color" content="#0E3B2E">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="القرآن الكريم">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F7F2E7;
+    --panel: #FFFDF8;
+    --ink: #24211A;
+    --ink-soft: #6b6455;
+    --accent: #0E3B2E;
+    --accent-deep: #0A2C22;
+    --gold: #B4892E;
+    --gold-soft: #E7D5A8;
+    --line: #D9CDA9;
+    --radius: 14px;
+  }
+  [data-theme="navy"]{
+    --bg:#EFF2F6; --panel:#FFFFFF; --ink:#1B2430; --ink-soft:#5B6676;
+    --accent:#16324F; --accent-deep:#0F2338; --gold:#7C8FA6; --gold-soft:#D7E0EA; --line:#D3DBE4;
+  }
+  [data-theme="maroon"]{
+    --bg:#F7EEEA; --panel:#FFFBF8; --ink:#2B1B16; --ink-soft:#7A5E52;
+    --accent:#5C1F1A; --accent-deep:#421512; --gold:#B97A45; --gold-soft:#EAD2B8; --line:#E3CFC2;
+  }
+  [data-theme="desert"]{
+    --bg:#F5F1E3; --panel:#FFFEF6; --ink:#2B2A1E; --ink-soft:#786F4E;
+    --accent:#2F6E5E; --accent-deep:#1F4E42; --gold:#C79A3B; --gold-soft:#E9DCA8; --line:#DCD3AC;
+  }
+  [data-theme="dark"]{
+    --bg:#121614; --panel:#1A211D; --ink:#EDE8DA; --ink-soft:#9CA79E;
+    --accent:#C9A227; --accent-deep:#8F7118; --gold:#C9A227; --gold-soft:#3A3324; --line:#2C3530;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    transition: background .25s ease, color .25s ease;
+  }
+  .app{
+    display:flex;
+    flex-direction: column;
+    max-width:1320px;
+    margin:0 auto;
+  }
+
+  /* Header (was sidebar) */
+  .sidebar{
+    width: 100%;
+    background: var(--accent);
+    color: #F3EEDF;
+    padding: 20px 24px;
+    position: static;
+    transition: background .25s ease;
+  }
+  .brand{
+    text-align:center;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(231,213,168,0.25);
+  }
+  .brand .eyebrow{
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold-soft);
+    text-transform: uppercase;
+    display:block;
+    margin-bottom:6px;
+  }
+  .brand h1{
+    font-family:'Amiri Quran', serif;
+    font-size: 24px;
+    margin:0;
+    line-height:1.5;
+    color:#fff;
+  }
+  .search-box{
+    width:100%;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(231,213,168,0.3);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    font-family:'Cairo',sans-serif;
+    font-size: 14px;
+    outline:none;
+  }
+  .search-box::placeholder{ color: rgba(243,238,223,0.5); }
+
+  .theme-row{
+    display:flex; gap:8px; justify-content:center;
+    margin-bottom: 16px;
+  }
+  .theme-dot{
+    width: 24px; height:24px; border-radius:50%;
+    border: 2px solid rgba(255,255,255,0.35);
+    cursor:pointer;
+    padding:0;
+  }
+  .theme-dot.active{ border-color:#fff; transform: scale(1.15); }
+
+  .surah-list{
+    list-style:none;
+    margin:0; padding:0 0 6px;
+    display:flex;
+    flex-direction:row;
+    overflow-x:auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    gap: 6px;
+    max-width: 100%;
+    user-select: none;
+  }
+  .surah-list li{ flex-shrink:0; }
+  .surah-list button{
+    width: auto;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(243,238,223,0.85);
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor:pointer;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    gap: 4px;
+    font-family:'Cairo',sans-serif;
+    transition: all .15s ease;
+    min-width: 74px;
+  }
+  .surah-list button:hover{ background: rgba(255,255,255,0.1); }
+  .surah-list button.active{
+    background: rgba(231,213,168,0.14);
+    border-color: rgba(231,213,168,0.35);
+    color: #fff;
+  }
+  .surah-list .num{
+    width: 24px; height:24px;
+    border-radius:50%;
+    border: 1px solid rgba(231,213,168,0.4);
+    display:flex;align-items:center;justify-content:center;
+    font-size: 10.5px;
+    color: var(--gold-soft);
+    flex-shrink:0;
+  }
+  .surah-list .name-ar{ font-size:14.5px; font-weight:600; }
+  .surah-list .name-meta{ font-size:10.5px; color: rgba(243,238,223,0.5); }
+
+  /* Main */
+  .main{ flex:1; padding: 34px 44px 60px; min-width:0; }
+  .toolbar{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+  }
+  .nav-btns{ display:flex; gap:8px; }
+  .credit-label{
+    font-family:'Cairo',sans-serif;
+    font-weight:800;
+    font-size: 16px;
+    color: #0E7C4A;
+    background: rgba(14,124,74,0.08);
+    border: 1px solid rgba(14,124,74,0.25);
+    padding: 8px 18px;
+    border-radius: 999px;
+    letter-spacing: .3px;
+  }
+  .nav-btns button{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--accent);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family:'Cairo',sans-serif;
+    font-weight:600;
+    font-size: 13px;
+    cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition: all .15s ease;
+  }
+  .nav-btns button:hover{ background: var(--gold-soft); }
+  .nav-btns button:disabled{ opacity:.35; cursor:not-allowed; }
+
+  .font-controls{
+    display:flex; align-items:center; gap:8px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 8px;
+  }
+  .font-controls button{
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--accent);
+    font-family:'Cairo',sans-serif;
+    font-weight:700;
+    font-size: 13px;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .font-controls button:hover{ background: var(--gold-soft); }
+  .font-controls #fontLabel{
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-width: 22px;
+    text-align:center;
+  }
+
+  .surah-card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 40px 38px 46px;
+    position: relative;
+    box-shadow: 0 18px 40px -22px rgba(14,59,46,0.25);
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .surah-card::before{
+    content:"";
+    position:absolute; inset: 10px;
+    border: 1px solid var(--gold-soft);
+    border-radius: 10px;
+    pointer-events:none;
+  }
+  .surah-header{ text-align:center; margin-bottom: 22px; position:relative; z-index:1; }
+  .surah-header .index-label{ font-size:12px; letter-spacing:2px; color: var(--gold); text-transform:uppercase; }
+  .surah-header h2{ font-family:'Amiri Quran', serif; font-size: 40px; margin: 8px 0 6px; color: var(--accent); }
+  .badges{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .badge{ font-size:12px; padding: 5px 12px; border-radius: 999px; background: var(--bg); border:1px solid var(--line); color: var(--ink-soft); }
+
+  .info-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin: 22px 0; position:relative; z-index:1;
+  }
+  .info-block{
+    background: var(--bg); border:1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  }
+  .info-block h4{ margin:0 0 6px; font-size:12.5px; color: var(--gold); letter-spacing:.5px; }
+  .info-block p{ margin:0; font-size:13.5px; line-height:1.9; color: var(--ink); }
+  @media (max-width: 700px){ .info-grid{ grid-template-columns:1fr; } }
+
+  .bismillah{ text-align:center; font-family:'Amiri Quran', serif; font-size: 28px; color: var(--accent); margin: 20px 0 30px; }
+  .book{
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent 6%);
+    border-radius: 10px;
+    padding: 6px;
+    position: relative; z-index:1;
+  }
+  .ayat{
+    font-family:'Amiri Quran', serif;
+    font-size: var(--ayat-size, 29px);
+    line-height: 2.5;
+    text-align:center;
+    color: var(--ink);
+    column-count: 2;
+    column-gap: 46px;
+    column-rule: 1px solid var(--line);
+    transition: font-size .15s ease;
+  }
+  .ayat .state-msg{ column-span: all; }
+
+  .page-nav{
+    display:flex; align-items:center; justify-content:center; gap: 18px;
+    margin-top: 16px; position:relative; z-index:1;
+  }
+  .page-nav button{
+    width: 36px; height:36px; border-radius:50%;
+    border: 1px solid var(--gold);
+    background: var(--panel);
+    color: var(--accent);
+    font-size: 16px; font-weight:700; cursor:pointer;
+    transition: all .15s ease;
+  }
+  .page-nav button:hover{ background: var(--gold-soft); }
+  .page-nav button:disabled{ opacity:.3; cursor:not-allowed; }
+  .page-nav #pageLabel{
+    font-family:'Amiri Quran', serif;
+    font-size: 15px;
+    color: var(--ink-soft);
+    min-width: 110px;
+    text-align:center;
+  }
+  .ayah-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width: 33px; height:33px; font-family:'Cairo',sans-serif; font-size: 13px;
+    color: var(--accent); border: 1.5px solid var(--gold); border-radius: 50%;
+    margin: 0 5px; transform: translateY(6px);
+  }
+  .state-msg{ text-align:center; color: var(--ink-soft); font-size:14px; padding: 30px 0; }
+
+  .tafsir-toggle-wrap{ text-align:center; margin-top: 30px; position:relative; z-index:1; }
+  .tafsir-toggle{
+    background: var(--accent); color: #F3EEDF; border: none; padding: 10px 22px;
+    border-radius: 999px; font-family:'Cairo',sans-serif; font-weight:600; font-size: 13.5px;
+    cursor:pointer; display:inline-flex; align-items:center; gap: 8px; transition: all .15s ease;
+  }
+  .tafsir-toggle:hover{ background: var(--accent-deep); }
+  .tafsir-toggle .chev{ transition: transform .2s ease; font-size: 11px; }
+  .tafsir-toggle.open .chev{ transform: rotate(180deg); }
+  .tafsir-box{
+    max-height: 0; overflow: hidden; transition: max-height .35s ease, opacity .3s ease, margin .3s ease;
+    opacity: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    margin-top: 0; position: relative; z-index:1;
+  }
+  .tafsir-box.open{ max-height: 4000px; opacity: 1; margin-top: 18px; }
+  .tafsir-box h3{ font-family:'Cairo',sans-serif; font-size: 14px; color: var(--gold); letter-spacing: 1px; margin: 0; padding: 16px 22px 0; }
+  .tafsir-box p{ font-family:'Cairo',sans-serif; font-size: 14.5px; line-height: 2.1; color: var(--ink); padding: 10px 22px 20px; margin: 0; text-align: justify; white-space: pre-line; }
+
+  footer{ text-align:center; color: var(--ink-soft); font-size:12px; margin-top: 26px; }
+
+  @media (max-width: 860px){
+    .main{ padding: 22px 16px 40px; }
+    .surah-card{ padding: 26px 16px 32px; }
+    .ayat{ font-size:23px; line-height:2.3; column-count: 1; column-rule: none; }
+    .bismillah{ font-size:22px; }
+    .surah-header h2{ font-size:30px; }
+    .toolbar{ flex-direction: column; align-items: stretch; }
+    .toolbar > *{ width: 100%; }
+    .credit-label{ order: -1; text-align:center; }
+    .nav-btns{ justify-content: space-between; }
+    .nav-btns button{ flex:1; justify-content:center; padding: 10px 12px; }
+    .font-controls{ justify-content: center; }
+  }
+
+  @media (max-width: 480px){
+    body{ font-size: 15px; }
+    .sidebar{ padding: 14px 12px; }
+    .brand h1{ font-size: 19px; }
+    .brand .eyebrow{ font-size: 10px; }
+    .search-box{ padding: 10px 12px; font-size: 13px; }
+    .surah-list button{ min-width: 64px; padding: 7px 9px; }
+    .surah-list .name-ar{ font-size: 13px; }
+    .main{ padding: 16px 10px 32px; }
+    .surah-card{ padding: 20px 12px 26px; border-radius: 10px; }
+    .surah-card::before{ inset: 6px; }
+    .surah-header h2{ font-size: 24px; }
+    .badges{ gap: 6px; }
+    .badge{ font-size: 11px; padding: 4px 10px; }
+    .info-grid{ margin: 16px 0; gap: 10px; }
+    .info-block{ padding: 12px 12px; }
+    .info-block p{ font-size: 13px; line-height: 1.8; }
+    .bismillah{ font-size: 19px; margin: 16px 0 22px; }
+    .ayat{ font-size: 20px !important; line-height: 2.15; }
+    .ayah-num{ width: 28px; height: 28px; font-size: 11px; }
+    .page-nav{ gap: 12px; }
+    .page-nav button{ width: 40px; height: 40px; }
+    .page-nav #pageLabel{ font-size: 13px; min-width: 90px; }
+    .tafsir-toggle{ padding: 10px 18px; font-size: 13px; width: 100%; justify-content:center; }
+    .tafsir-box p{ font-size: 13.5px; padding: 10px 16px 18px; }
+    .credit-badge{ font-size: 12px; padding: 6px 12px; }
+    .font-controls-fixed{ padding: 4px 8px; }
+    .font-controls button, .font-controls-fixed button{ width: 30px; height: 30px; }
+    footer{ font-size: 11px; padding: 0 6px; line-height: 1.7; }
+  }
+
+  /* Prevent horizontal overflow on small screens */
+  html, body{ overflow-x: hidden; }
+  .app{ width: 100%; }
+  .credit-badge{
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    z-index: 50;
+    background: var(--panel);
+    color: var(--accent);
+    border: 1px solid var(--gold);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.25);
+  }
+  @media (max-width: 860px){
+    .credit-badge{ position: static; display:inline-block; margin: 0 auto 10px; }
+  }
+  .font-controls-fixed{
+    position: fixed;
+    top: 14px;
+    left: 18px;
+    z-index: 50;
+    display:flex; align-items:center; gap:8px;
+    background: var(--panel);
+    border: 1px solid var(--gold);
+    border-radius: 999px;
+    padding: 5px 10px;
+    box-shadow: 0 6px 16px -6px rgba(0,0,0,0.25);
+  }
+  @media (max-width: 860px){
+    .font-controls-fixed{ position: static; display:inline-flex; margin: 0 auto 10px; }
+  }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background: var(--gold-soft); border-radius:8px; }
+</style>
+</head>
+<body>
+<div class="credit-badge">إعداد: مازن زياد</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="eyebrow">القرآن الكريم</span>
+      <h1>سور القرآن الكريم كاملة</h1>
+    </div>
+    <input class="search-box" id="searchBox" placeholder="ابحث عن سورة بالاسم أو الرقم...">
+    <div class="theme-row" id="themeRow"></div>
+    <ul class="surah-list" id="surahList"></ul>
+  </aside>
+
+  <main class="main">
+    <div class="toolbar">
+      <div class="credit-label" id="creditLabel">إعداد: مازن زياد</div>
+      <div class="nav-btns">
+        <button id="prevBtn">‹ السابقة</button>
+        <button id="nextBtn">التالية ›</button>
+      </div>
+      <div class="font-controls" id="pageNavFixed">
+        <button id="pagePrev" title="الصفحة السابقة">‹</button>
+        <span id="pageLabel">صفحة ١ من ١</span>
+        <button id="pageNext" title="الصفحة التالية">›</button>
+      </div>
+      <div class="font-controls">
+        <button id="fontMinus" title="تصغير الخط">A-</button>
+        <span id="fontLabel">29</span>
+        <button id="fontPlus" title="تكبير الخط">A+</button>
+      </div>
+    </div>
+
+    <section class="surah-card">
+      <div class="surah-header">
+        <span class="index-label" id="orderLabel"></span>
+        <h2 id="surahName"></h2>
+        <div class="badges">
+          <span class="badge" id="badgeType">...</span>
+          <span class="badge" id="badgeCount">...</span>
+          <span class="badge" id="badgeOrder"></span>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <h4>سبب التسمية</h4>
+          <p id="namingReason"></p>
+        </div>
+        <div class="info-block">
+          <h4>سياق النزول</h4>
+          <p id="revelationContext"></p>
+        </div>
+      </div>
+
+      <div class="bismillah" id="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="book">
+        <div class="ayat" id="ayatContainer"><div class="state-msg">جارٍ تحميل الآيات...</div></div>
+      </div>
+
+      <div class="tafsir-toggle-wrap">
+        <button id="tafsirToggle" class="tafsir-toggle">
+          <span>عرض التفسير الميسّر</span>
+          <span class="chev">▾</span>
+        </button>
+      </div>
+      <div class="tafsir-box" id="tafsirBox">
+        <h3>التفسير الميسّر</h3>
+        <p id="tafsirText">جارٍ تحميل التفسير...</p>
+      </div>
+    </section>
+
+    <footer>النص القرآني والتفسير يُجلبان مباشرة من واجهة Al Quran Cloud (نسخة المصحف العثماني وتفسير الميسّر) لضمان الدقة — سبب التسمية وسياق النزول ملخّصان لأغراض تعليمية، ويُنصح بالرجوع لكتب التفسير المعتمدة للتوسع.</footer>
+  </main>
+</div>
+
+<script>
+// ---- Editorial data: naming reason + revelation context per surah (114 entries) ----
+const info = {
+1:["الافتتاح؛ لأنها تفتتح بها القراءة في المصحف والصلاة، وتُعرف أيضًا بأم الكتاب والسبع المثاني.","من أوائل ما نزل، وهي أساس الصلاة إذ لا تصح إلا بها."],
+2:["نسبة لقصة البقرة التي أمر الله بني إسرائيل بذبحها فيها.","أطول سورة في القرآن، نزل معظمها في السنوات الأولى بعد الهجرة إلى المدينة."],
+3:["نسبة لذكر قصة آل عمران، والد مريم عليها السلام، وقصة ولادتها ونذر أمها.","نزلت مطولاً بمناسبة وفد نصارى نجران وما تلاها من أحداث غزوة أحد."],
+4:["لكثرة الأحكام المتعلقة بالنساء فيها، كالزواج والميراث وحقوقهن.","مدنية، عالجت قضايا اجتماعية وأسرية بعد استقرار الدولة الإسلامية في المدينة."],
+5:["نسبة لقصة نزول المائدة من السماء على الحواريين استجابة لدعاء عيسى عليه السلام.","من آخر ما نزل من القرآن، وفيها استكمال للتشريعات."],
+6:["لكثرة الحديث فيها عن الأنعام وما ابتدعه المشركون من أحكام باطلة فيها.","مكية، وقد نزلت جملة واحدة كما ورد عن جمع من المفسرين."],
+7:["نسبة لذكر 'الأعراف'، وهو موضع مرتفع بين الجنة والنار يوم القيامة.","مكية، تناولت قصص الأنبياء مع أقوامهم بشكل مفصل."],
+8:["لحديثها عن أحكام الأنفال (الغنائم) بعد غزوة بدر الكبرى.","نزلت عقب غزوة بدر لتنظيم قسمة الغنائم وبيان أسباب النصر."],
+9:["لحديثها عن توبة الله على المؤمنين والمتخلفين عن غزوة تبوك.","السورة الوحيدة التي لم تُفتتح بالبسملة؛ نزلت في أواخر العهد المدني."],
+10:["نسبة لذكر قصة نبي الله يونس عليه السلام وقومه الذين آمنوا فنجوا من العذاب.","مكية، تتناول قضايا التوحيد والرد على المشركين."],
+11:["نسبة لقصة نبي الله هود عليه السلام مع قومه عاد.","مكية، وصفها النبي صلى الله عليه وسلم بأنها من السور التي شيّبته لما فيها من أهوال."],
+12:["قصة نبي الله يوسف عليه السلام كاملة من بدايتها إلى نهايتها، وتُعرف بأحسن القصص.","مكية، نزلت تسلية للنبي صلى الله عليه وسلم في عام الحزن."],
+13:["لذكر الرعد الذي يسبح بحمد الله فيها.","اختُلف في كونها مكية أو مدنية، وتتناول عظمة خلق الله في الكون."],
+14:["نسبة لدعاء نبي الله إبراهيم عليه السلام المذكور فيها لذريته وأهل مكة.","مكية، تعرض دعوات الأنبياء وموقف أقوامهم منهم."],
+15:["نسبة لديار ثمود المعروفة بالحِجر، الواقعة بين المدينة والشام.","مكية، تتحدث عن تكذيب الأمم السابقة للرسل."],
+16:["لذكر نعمة النحل وما أوحى الله له من بناء البيوت وصنع العسل، وتُسمى أيضًا سورة النِّعم.","مكية، تعدد نعم الله على خلقه كدليل على وحدانيته."],
+17:["لحديثها عن رحلة الإسراء بالنبي صلى الله عليه وسلم من مكة إلى بيت المقدس، وتُعرف أيضًا ببني إسرائيل.","مكية، نزلت في أعقاب حادثة الإسراء والمعراج."],
+18:["نسبة لقصة أصحاب الكهف الذين فرّوا بدينهم من قومهم فآواهم الله في كهف.","مكية، وردت فضائل عظيمة في قراءتها يوم الجمعة."],
+19:["لذكر قصة مريم عليها السلام وولادتها لعيسى عليه السلام بأمر الله.","مكية، نزلت زمن هجرة بعض الصحابة إلى الحبشة."],
+20:["من الحروف المقطّعة التي افتُتحت بها السورة.","مكية، فيها قصة موسى عليه السلام مع فرعون بشكل مفصل."],
+21:["لذكر قصص عدد من الأنبياء عليهم السلام وردهم على أقوامهم.","مكية، تؤكد وحدة الرسالة عبر الأنبياء جميعًا."],
+22:["لحديثها عن فريضة الحج ومناسكه وفضله.","تضم آيات مكية وأخرى مدنية بحسب أكثر أقوال المفسرين."],
+23:["لذكر صفات المؤمنين الفائزين في مطلع السورة.","مكية، تبدأ بالبشارة بالفلاح لمن اتصف بصفات الإيمان الحق."],
+24:["لذكر آية النور العظيمة، وتضمنت أحكام الحجاب والعفة وحادثة الإفك.","مدنية، نزلت عقب حادثة الإفك التي مست بيت النبي صلى الله عليه وسلم."],
+25:["من أسماء القرآن الكريم، لأنه يفرّق بين الحق والباطل.","مكية، ترد على شبهات المشركين حول القرآن والنبوة."],
+26:["لذكر حال الشعراء وصفتهم في ختام السورة، تمييزًا للقرآن عن الشعر.","مكية، تسرد قصص عدد من الأنبياء مع أقوامهم."],
+27:["نسبة لقصة النملة التي حذّرت جنودها من جيش سليمان عليه السلام.","مكية، فيها قصة سليمان مع الهدهد وملكة سبأ."],
+28:["لتفصيلها قصة موسى عليه السلام منذ ولادته إلى نبوته.","مكية، نزلت تثبيتًا للنبي صلى الله عليه وسلم في مواجهة أذى قومه."],
+29:["لضرب المثل بالعنكبوت وبيتها الواهي لمن اتخذ أولياء من دون الله.","مكية، تتحدث عن الابتلاء وثبات المؤمنين عليه."],
+30:["لذكر غلبة الفرس للروم ثم انتصار الروم بعد ذلك كما أخبر القرآن.","مكية، نزلت في وقت كانت فيه بشارة بانتصار الروم موضع رهان بين المسلمين والمشركين."],
+31:["لذكر وصايا الحكيم لقمان لابنه في التوحيد والأخلاق.","مكية، تبرز الحكمة العملية في التربية الإيمانية."],
+32:["لذكر آية السجدة التي يُستحب السجود عندها.","مكية، تتحدث عن خلق الإنسان والبعث."],
+33:["لحديثها عن غزوة الأحزاب (الخندق) التي تحزّبت فيها القبائل ضد المسلمين.","مدنية، عالجت أحداث الغزوة وبعض الأحكام الأسرية."],
+34:["نسبة لقصة قوم سبأ في اليمن ونعمتهم العظيمة ثم زوالها بكفرهم.","مكية، تحذر من الاغترار بالنعم دون شكر."],
+35:["من أسماء الله الحسنى (فاطر السماوات والأرض)، وتُسمى أيضًا سورة الملائكة.","مكية، تتحدث عن قدرة الله في الخلق ورسالة الملائكة."],
+36:["من الحروف المقطّعة، وتُلقّب بـ'قلب القرآن' لما ورد في فضلها.","مكية، تؤكد على البعث والرسالة بأسلوب مؤثر."],
+37:["نسبة للملائكة الصافّات أجنحتها في عبادة الله وتسبيحه.","مكية، فيها قصص عدة أنبياء منهم إبراهيم وإسماعيل ويونس عليهم السلام."],
+38:["من الحروف المقطّعة التي افتُتحت بها السورة.","مكية، تتناول قصة داود وسليمان عليهما السلام وابتلاء الأنبياء."],
+39:["لذكر دخول الناس الجنة والنار جماعات (زُمَرًا) يوم القيامة.","مكية، تدعو للإخلاص التام في العبادة."],
+40:["من أسماء الله الحسنى (غافر الذنب)، وتُسمى أيضًا سورة المؤمن لذكر قصة مؤمن آل فرعون.","مكية، تتحدث عن جدال فرعون مع موسى عليه السلام."],
+41:["لأن آياتها فُصّلت وبُيّنت بالحجج والبراهين، وتُسمى أيضًا سورة السجدة.","مكية، ترد على شبهات المشركين حول القرآن."],
+42:["لحث المسلمين على مبدأ الشورى في تدبير أمورهم.","مكية، تؤسس لمبدأ التشاور كقيمة إسلامية أصيلة."],
+43:["لذكر زخرف الدنيا (زينتها الزائلة) الذي لا يدل على رضا الله عن أهله.","مكية، ترد على من فضّل الغنى الدنيوي على الهداية."],
+44:["لذكر الدخان الذي يُعد من علامات العذاب أو من أشراط الساعة.","مكية، نزلت في سياق التحذير من عناد قريش."],
+45:["لذكر جثوّ الأمم كلها على ركبها من هول يوم القيامة.","مكية، تتحدث عن آيات الله الكونية الدالة على وحدانيته."],
+46:["نسبة لمساكن قوم عاد الرملية (الأحقاف) الواقعة باليمن.","مكية، فيها قصة هود عليه السلام مع قومه وذكر إيمان بعض الجن بالقرآن."],
+47:["سُميت باسم النبي محمد صلى الله عليه وسلم المذكور فيها صراحة، وتُسمى أيضًا سورة القتال.","مدنية، نزلت في سياق الحديث عن أحكام القتال والجهاد."],
+48:["بشارة بفتح مبين قريب، نزلت عقب صلح الحديبية.","مدنية، نزلت في طريق العودة من الحديبية بشارةً للمسلمين."],
+49:["لذكر آداب مخاطبة النبي صلى الله عليه وسلم في حجراته وعدم رفع الصوت عنده.","مدنية، تؤسس لآداب اجتماعية رفيعة بين المسلمين."],
+50:["من الحروف المقطّعة التي افتُتحت بها السورة.","مكية، تتحدث عن البعث وقدرة الله على الإحياء بعد الموت."],
+51:["نسبة للرياح الذاريات التي تثير التراب وتذروه.","مكية، تؤكد صدق وعد الله بالبعث والجزاء."],
+52:["نسبة لجبل الطور الذي كلّم الله عليه موسى عليه السلام.","مكية، تصف نعيم أهل الجنة وعذاب المكذبين."],
+53:["قسم بالنجم إذا هوى (غاب أو سقط)، وتصف حادثة المعراج.","مكية، فيها ذكر لرؤية النبي صلى الله عليه وسلم جبريل عليه السلام في صورته الحقيقية."],
+54:["لذكر انشقاق القمر كمعجزة ظاهرة أُجريت للنبي صلى الله عليه وسلم.","مكية، تتحدث عن عناد المشركين رغم وضوح الآيات."],
+55:["من أسماء الله الحسنى، وتُعرف بعروس القرآن لتكرار آية 'فبأي آلاء ربكما تكذبان'.","تُعدد نعم الله على الإنس والجن، واختُلف في كونها مكية أو مدنية."],
+56:["من أسماء يوم القيامة، لأنها واقعة لا ريب فيها.","مكية، تقسّم الناس يوم القيامة إلى ثلاثة أصناف."],
+57:["لذكر إنزال الحديد وما فيه من بأس شديد ومنافع للناس.","مدنية، من أوائل ما نزل بالمدينة، تدعو للإنفاق في سبيل الله."],
+58:["لقصة المرأة (خولة بنت ثعلبة) التي جادلت النبي صلى الله عليه وسلم في أمر زوجها المُظاهِر منها.","مدنية، نزلت لتشريع حكم الظهار."],
+59:["لحديثها عن إجلاء يهود بني النضير من المدينة، وهو أول حشر لهم.","مدنية، نزلت عقب غزوة بني النضير."],
+60:["لحديثها عن امتحان المهاجرات المؤمنات اللاتي هاجرن من مكة.","مدنية، نزلت لبيان حكم موالاة المؤمنين للكافرين المحاربين."],
+61:["لحث المؤمنين على القتال في سبيل الله صفًا واحدًا كالبنيان المرصوص.","مدنية، تدعو للجدية بين القول والعمل."],
+62:["لذكر أحكام يوم الجمعة وصلاتها.","مدنية، تحث على السعي لصلاة الجمعة وترك البيع عند ندائها."],
+63:["لكشف صفات المنافقين وخداعهم في القول دون الفعل.","مدنية، نزلت في سياق أحداث غزوة بني المصطلق."],
+64:["لذكر يوم التغابن، وهو أحد أسماء يوم القيامة حين يظهر غبن الكافرين وربح المؤمنين.","مدنية، تتحدث عن الابتلاء بالأموال والأولاد."],
+65:["لبيان أحكام الطلاق والعدة وحقوق المرأة المطلقة.","مدنية، فصّلت تشريعات دقيقة متعلقة بالطلاق."],
+66:["لحادثة تحريم النبي صلى الله عليه وسلم على نفسه أمرًا مباحًا إرضاءً لبعض أزواجه.","مدنية، نزلت لتصحيح موقف تشريعي معين."],
+67:["من أسماء الله الحسنى (تبارك الذي بيده الملك)، وتُسمى المنجية والواقية لحمايتها قارئها من عذاب القبر.","مكية، تدعو للتفكر في عظمة خلق الله."],
+68:["قسم بالقلم وما يسطره الكاتبون، وتُسمى أيضًا سورة ن لافتتاحها بهذا الحرف.","مكية، من أوائل ما نزل، وترد على اتهام المشركين للنبي بالجنون."],
+69:["من أسماء يوم القيامة، لأنها الحقة الواقعة التي لا ريب فيها.","مكية، تصف أهوال يوم القيامة ومصير المكذبين."],
+70:["لذكر معارج (مصاعد) الملائكة التي تعرج بها إلى الله.","مكية، تصف حال الإنسان في الشدة والرخاء."],
+71:["قصة نبي الله نوح عليه السلام ودعوته الطويلة لقومه.","مكية، تسرد أسلوب نوح المتنوع في الدعوة وعناد قومه."],
+72:["لحديثها عن استماع نفر من الجن للقرآن الكريم وإيمانهم به.","مكية، تكشف عالم الجن وتفاعلهم مع الوحي."],
+73:["لمخاطبة النبي صلى الله عليه وسلم وهو 'متزمل' أي متلفف بثيابه عند بدء الوحي.","مكية في معظمها، تأمر بقيام الليل تهيئة لأعباء الرسالة."],
+74:["لمخاطبة النبي صلى الله عليه وسلم وهو 'متدثر' بثيابه.","من أوائل ما نزل من القرآن، أمرت النبي بالإنذار والدعوة الجهرية."],
+75:["قسم بيوم القيامة وأحداثه وأهواله.","مكية، ترد على منكري البعث بأدلة عقلية."],
+76:["لذكر خلق الإنسان من نطفة أمشاج وابتلائه، وتُسمى أيضًا سورة الدهر.","اختُلف في كونها مكية أو مدنية، تصف جزاء الأبرار."],
+77:["قسم بالرياح المرسلات، وقيل بالملائكة المرسلة بالوحي.","مكية، يتكرر فيها التذكير بيوم القيامة بأسلوب مهيب."],
+78:["لذكر 'النبأ العظيم'، وهو يوم القيامة الذي اختلف الناس فيه.","مكية، تصف مشاهد يوم القيامة والجنة والنار."],
+79:["قسم بالملائكة النازعات لأرواح الكفار بشدة عند الموت.","مكية، تقارن بين مصير الطاغين والخائفين من مقام ربهم."],
+80:["لعتاب لطيف للنبي صلى الله عليه وسلم حين عبس وأعرض عن الصحابي الأعمى ابن أم مكتوم.","مكية، نزلت في سياق حرص النبي على إسلام أحد صناديد قريش."],
+81:["لذكر 'تكوير' الشمس، أي لفّها وإخفاء نورها يوم القيامة.","مكية، تصف علامات انقلاب نظام الكون يوم القيامة."],
+82:["لذكر 'انفطار' السماء، أي انشقاقها يوم القيامة.","مكية، تصف أهوال الساعة وحساب النفوس."],
+83:["لذم من يُنقصون المكيال والميزان إذا باعوا للناس (المطففين).","مكية، نزلت لمعالجة ظاهرة انتشرت في التعامل التجاري بالمدينة قبيل الهجرة، وقيل في مكة."],
+84:["لذكر 'انشقاق' السماء وتصدعها يوم القيامة.","مكية، تتحدث عن استسلام الكون كله لأمر الله."],
+85:["قسم بالسماء ذات البروج (النجوم الكبيرة)، وفيها قصة أصحاب الأخدود.","مكية، تسلية للمؤمنين المستضعفين بذكر صبر من قبلهم على الفتنة."],
+86:["قسم بالنجم الطارق الذي يُرى ليلاً.","مكية، تؤكد قدرة الله على إعادة خلق الإنسان بعد الموت."],
+87:["لأمر النبي صلى الله عليه وسلم بتسبيح اسم ربه الأعلى.","مكية، تحث على التذكر والتيسير في الدعوة."],
+88:["من أسماء يوم القيامة الذي يغشى الناس بأهواله (الغاشية).","مكية، تصف حال أهل النار وأهل الجنة يوم القيامة."],
+89:["قسم بوقت الفجر لعظمته وبركته.","مكية، تذكّر بمصير الأمم الطاغية كعاد وثمود وفرعون."],
+90:["قسم بالبلد الأمين، وهو مكة المكرمة.","مكية، تتحدث عن مكابدة الإنسان في الحياة وطريق الخير والشر."],
+91:["قسم بالشمس وضحاها، ثم بمخلوقات أخرى تترى.","مكية، تتحدث عن تزكية النفس وتدسيتها، وقصة ناقة صالح."],
+92:["قسم بالليل إذا يغشى الكون بظلامه.","مكية، تبيّن اختلاف مساعي الناس بين خير وشر."],
+93:["قسم بوقت الضحى، نزلت لتطييب خاطر النبي صلى الله عليه وسلم بعد انقطاع الوحي فترة من الزمن.","مكية، جاءت لتبديد حزن النبي وتثبيت قلبه."],
+94:["لذكر شرح الله صدر النبي صلى الله عليه وسلم وتيسير أمره.","مكية، ترتبط بسورة الضحى في التسلية والتثبيت."],
+95:["قسم بالتين والزيتون، وهما رمزان لأرض مباركة (الشام) اشتهرت بهما.","مكية، تتحدث عن أحسن تقويم خلق الله للإنسان."],
+96:["لذكر خلق الإنسان من 'علق' (دم متجمد)، وهي أول سورة نزلت من القرآن الكريم بغار حراء.","مكية، تمثل بداية الوحي والرسالة."],
+97:["لذكر 'ليلة القدر' العظيمة التي فيها نزل القرآن، وفضلها العظيم.","مكية، تبيّن شرف الليلة التي بدأ فيها نزول القرآن."],
+98:["لمجيء الرسول صلى الله عليه وسلم بـ'البينة' الواضحة لأهل الكتاب والمشركين.","مدنية، توضح موقف أهل الكتاب من الرسالة الجديدة."],
+99:["لوصف زلزلة الأرض الشديدة يوم القيامة وإخراجها لما فيها.","مدنية، تصف مشهدًا من أهوال الساعة."],
+100:["قسم بالخيل العاديات (المسرعة جريًا) في الغزو والجهاد.","مكية، تصف جحود الإنسان لنعم ربه."],
+101:["من أسماء يوم القيامة التي تقرع القلوب بشدة أهوالها (القارعة).","مكية، تصف حال الناس يوم القيامة كالفراش المبثوث."],
+102:["لذم الانشغال بالتفاخر والتكاثر في الدنيا (الأموال والأولاد) عن الاستعداد للآخرة.","مكية، تحذّر من الغفلة حتى يأتي الموت."],
+103:["نسبة إلى العصر (الزمن أو الدهر) الذي أقسم الله به.","مكية، تلخص أسباب النجاة من الخسران في أربع صفات."],
+104:["لذم كل من يعيب الناس بلسانه (الهمزة) أو بإشارته (اللمزة).","مكية، تحذر من التفاخر بالمال وعاقبته."],
+105:["نسبة لقصة أصحاب الفيل الذين حاولوا هدم الكعبة فأهلكهم الله.","مكية، وقعت الحادثة عام ولادة النبي صلى الله عليه وسلم تقريبًا."],
+106:["نسبة لقبيلة قريش وإيلافها (تمكينها) من رحلتي الشتاء والصيف التجاريتين الآمنتين.","مكية، مرتبطة بسورة الفيل، تدعو قريشًا لشكر النعمة بعبادة رب الكعبة."],
+107:["لذكر 'الماعون'، وهو كل ما يُستعان به من أدوات المنزل البسيطة، ومنع صاحب هذه الصفات له عن جيرانه.","مكية، تربط بين صدق الإيمان والرحمة بالضعفاء."],
+108:["لذكر 'الكوثر'، وهو الخير الكثير الذي أعطاه الله لنبيه، وفُسّر بنهر في الجنة.","مكية، نزلت ردًّا على من عيّر النبي بانقطاع نسله."],
+109:["إعلان صريح بالبراءة من عبادة الكافرين وآلهتهم.","مكية، نزلت ردًّا على عرض من قريش بالتناوب في العبادة."],
+110:["لبشارة النصر من الله وفتح مكة القريب.","مدنية، من آخر ما نزل، وفيها إشارة إلى اقتراب أجل النبي صلى الله عليه وسلم."],
+111:["نسبة للحبل المفتول من الليف (المسد) الذي وُصفت به زوجة أبي لهب.","مكية، نزلت في أبي لهب عمّ النبي وزوجته لعداوتهما الشديدة للدعوة."],
+112:["لأنها خالصة في توحيد الله وتنزيهه عن الشريك والولد.","مكية، نزلت ردًّا على سؤال المشركين عن صفة رب النبي صلى الله عليه وسلم."],
+113:["لذكر الاستعاذة بربّ 'الفلق' أي الصبح.","مكية، إحدى سورتي المعوذتين، استعاذة من الشرور الخارجية."],
+114:["لذكر الاستعاذة بربّ 'الناس' من شر وسواس الشيطان.","مكية، السورة الأخيرة في ترتيب المصحف، استعاذة من الشر الداخلي (الوسواس)."]
+};
+
+// Fallback Arabic surah names in Mushaf order (used until API metadata loads)
+const namesFallback = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+
+let surahMeta = namesFallback.map((n,i)=>({number:i+1,name:n,type:null,ayahs:null}));
+let currentIndex = 0;
+const themes = [
+  {id:'emerald', label:'زمردي وذهبي'},
+  {id:'navy', label:'ليلي فضي'},
+  {id:'maroon', label:'عنّابي نحاسي'},
+  {id:'desert', label:'صحراوي فيروزي'},
+  {id:'dark', label:'داكن ذهبي'}
+];
+
+function toArabicNumber(num){
+  const map = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  return String(num).split('').map(d => map[+d]).join('');
+}
+
+function applyTheme(id){
+  if(id === 'emerald'){ document.documentElement.removeAttribute('data-theme'); }
+  else{ document.documentElement.setAttribute('data-theme', id); }
+  renderThemeRow(id);
+}
+
+function renderThemeRow(activeId){
+  const row = document.getElementById('themeRow');
+  row.innerHTML = '';
+  themes.forEach(t=>{
+    const dot = document.createElement('button');
+    dot.className = 'theme-dot' + (t.id===activeId ? ' active':'');
+    dot.title = t.label;
+    dot.style.background = ({
+      emerald:'linear-gradient(135deg,#0E3B2E,#B4892E)',
+      navy:'linear-gradient(135deg,#16324F,#7C8FA6)',
+      maroon:'linear-gradient(135deg,#5C1F1A,#B97A45)',
+      desert:'linear-gradient(135deg,#2F6E5E,#C79A3B)',
+      dark:'linear-gradient(135deg,#121614,#C9A227)'
+    })[t.id];
+    dot.addEventListener('click', ()=> applyTheme(t.id));
+    row.appendChild(dot);
+  });
+}
+
+function renderList(filter=''){
+  const list = document.getElementById('surahList');
+  list.innerHTML = '';
+  surahMeta.forEach((s, i) => {
+    if(filter && !s.name.includes(filter) && !String(s.number).includes(filter)) return;
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.className = i === currentIndex ? 'active' : '';
+    btn.innerHTML = `
+      <span class="num">${toArabicNumber(s.number)}</span>
+      <span class="name-ar">${s.name}</span>
+      <span class="name-meta">${s.ayahs ? toArabicNumber(s.ayahs)+' آية' : ''}</span>
+    `;
+    btn.addEventListener('click', () => { currentIndex = i; render(); });
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+async function loadSurahList(){
+  try{
+    const res = await fetch('https://api.alquran.cloud/v1/surah');
+    const data = await res.json();
+    if(data && data.data){
+      surahMeta = data.data.map(s => ({
+        number: s.number,
+        name: s.name.replace('سُورَةُ ',''),
+        type: s.revelationType === 'Meccan' ? 'مكية' : 'مدنية',
+        ayahs: s.numberOfAyahs
+      }));
+    }
+  }catch(e){ /* keep fallback names; type/ayahs stay null and are shown via per-surah fetch */ }
+  renderList();
+  render();
+}
+
+let ayahPages = [];
+let currentPage = 0;
+const PAGE_CHAR_TARGET = 1800;
+
+function buildPages(ayahs){
+  const pages = [];
+  let cur = [];
+  let len = 0;
+  ayahs.forEach(a => {
+    const textLen = a.text.length;
+    if(len + textLen > PAGE_CHAR_TARGET && cur.length){
+      pages.push(cur);
+      cur = [];
+      len = 0;
+    }
+    cur.push(a);
+    len += textLen;
+  });
+  if(cur.length) pages.push(cur);
+  return pages;
+}
+
+function renderPage(){
+  const container = document.getElementById('ayatContainer');
+  const total = ayahPages.length || 1;
+  if(!ayahPages.length){
+    document.getElementById('pageLabel').textContent = 'صفحة ١ من ١';
+    document.getElementById('pagePrev').disabled = true;
+    document.getElementById('pageNext').disabled = true;
+    return;
+  }
+  const page = ayahPages[currentPage];
+  container.innerHTML = page.map(a =>
+    `<span class="ayah">${a.text}<span class="ayah-num">${toArabicNumber(a.numberInSurah)}</span></span> `
+  ).join('');
+  document.getElementById('pageLabel').textContent = `صفحة ${toArabicNumber(currentPage+1)} من ${toArabicNumber(total)}`;
+  document.getElementById('pagePrev').disabled = currentPage === 0;
+  document.getElementById('pageNext').disabled = currentPage === total - 1;
+  document.getElementById('bismillah').style.display = (currentIndex >= 0 && surahMeta[currentIndex].number === 9) ? 'none' : (currentPage === 0 ? 'block' : 'none');
+}
+
+document.getElementById('pagePrev').addEventListener('click', () => {
+  if(currentPage > 0){ currentPage--; renderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
+});
+document.getElementById('pageNext').addEventListener('click', () => {
+  if(currentPage < ayahPages.length - 1){ currentPage++; renderPage(); window.scrollTo({top:0, behavior:'smooth'}); }
+});
+
+async function loadAyat(surahNumber){
+  const container = document.getElementById('ayatContainer');
+  container.innerHTML = '<div class="state-msg">جارٍ تحميل الآيات...</div>';
+  ayahPages = [];
+  currentPage = 0;
+  try{
+    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`);
+    const data = await res.json();
+    if(!data || !data.data || !data.data.ayahs) throw new Error('no data');
+    const type = data.data.revelationType === 'Meccan' ? 'مكية' : 'مدنية';
+    const count = data.data.numberOfAyahs;
+    document.getElementById('badgeType').textContent = type;
+    document.getElementById('badgeCount').textContent = `${toArabicNumber(count)} آيات`;
+    ayahPages = buildPages(data.data.ayahs);
+    renderPage();
+  }catch(e){
+    container.innerHTML = '<div class="state-msg">تعذّر تحميل نص الآيات حاليًا. تحقق من اتصال الإنترنت وحاول مجددًا.</div>';
+    document.getElementById('badgeType').textContent = '—';
+    document.getElementById('badgeCount').textContent = '—';
+    document.getElementById('pageLabel').textContent = '—';
+    document.getElementById('pagePrev').disabled = true;
+    document.getElementById('pageNext').disabled = true;
+  }
+}
+
+async function loadTafsir(surahNumber){
+  const el = document.getElementById('tafsirText');
+  el.textContent = 'جارٍ تحميل التفسير...';
+  try{
+    const res = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.muyassar`);
+    const data = await res.json();
+    if(!data || !data.data || !data.data.ayahs) throw new Error('no data');
+    el.textContent = data.data.ayahs.map(a => `(${a.numberInSurah}) ${a.text}`).join('\n\n');
+  }catch(e){
+    el.textContent = 'تعذّر تحميل التفسير حاليًا. تحقق من اتصال الإنترنت وحاول مجددًا.';
+  }
+}
+
+function render(){
+  const s = surahMeta[currentIndex];
+  const meta = info[s.number] || ["—","—"];
+  document.getElementById('orderLabel').textContent = `السورة رقم ${toArabicNumber(s.number)} في المصحف`;
+  document.getElementById('surahName').textContent = `سورة ${s.name}`;
+  document.getElementById('badgeType').textContent = s.type || '...';
+  document.getElementById('badgeCount').textContent = s.ayahs ? `${toArabicNumber(s.ayahs)} آيات` : '...';
+  document.getElementById('badgeOrder').textContent = `الترتيب ${toArabicNumber(currentIndex+1)} من ١١٤`;
+  document.getElementById('namingReason').textContent = meta[0];
+  document.getElementById('revelationContext').textContent = meta[1];
+
+  document.getElementById('tafsirBox').classList.remove('open');
+  document.getElementById('tafsirToggle').classList.remove('open');
+  document.getElementById('tafsirToggle').querySelector('span').textContent = 'عرض التفسير الميسّر';
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').disabled = currentIndex === surahMeta.length - 1;
+
+  renderList(document.getElementById('searchBox').value.trim());
+  loadAyat(s.number);
+  loadTafsir(s.number);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => { if(currentIndex>0){ currentIndex--; render(); } });
+document.getElementById('nextBtn').addEventListener('click', () => { if(currentIndex<surahMeta.length-1){ currentIndex++; render(); } });
+
+let ayatFontSize = 29;
+function applyFontSize(){
+  document.documentElement.style.setProperty('--ayat-size', ayatFontSize + 'px');
+  document.getElementById('fontLabel').textContent = ayatFontSize;
+}
+document.getElementById('fontPlus').addEventListener('click', () => {
+  if(ayatFontSize < 46){ ayatFontSize += 2; applyFontSize(); }
+});
+document.getElementById('fontMinus').addEventListener('click', () => {
+  if(ayatFontSize > 18){ ayatFontSize -= 2; applyFontSize(); }
+});
+applyFontSize();
+document.getElementById('searchBox').addEventListener('input', (e)=> renderList(e.target.value.trim()));
+document.getElementById('tafsirToggle').addEventListener('click', () => {
+  const box = document.getElementById('tafsirBox');
+  const btn = document.getElementById('tafsirToggle');
+  const isOpen = box.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.querySelector('span').textContent = isOpen ? 'إخفاء التفسير' : 'عرض التفسير الميسّر';
+});
+
+applyTheme('emerald');
+renderList();
+loadSurahList();
+
+// Drag-to-scroll for the horizontal surah list
+(function enableDragScroll(){
+  const el = document.getElementById('surahList');
+  let isDown = false, startX = 0, scrollLeft = 0, moved = false;
+  el.addEventListener('mousedown', (e) => {
+    isDown = true; moved = false;
+    startX = e.pageX; scrollLeft = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', () => { isDown = false; el.style.cursor = 'grab'; });
+  window.addEventListener('mousemove', (e) => {
+    if(!isDown) return;
+    e.preventDefault();
+    const dx = e.pageX - startX;
+    if(Math.abs(dx) > 4) moved = true;
+    el.scrollLeft = scrollLeft - dx;
+  });
+  // Prevent click-through firing after a real drag
+  el.addEventListener('click', (e) => { if(moved){ e.stopPropagation(); e.preventDefault(); } }, true);
+  el.style.cursor = 'grab';
+})();
+
+// PWA: register service worker so the app installs on the phone
+// and keeps working (with previously-viewed surahs) without internet.
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
